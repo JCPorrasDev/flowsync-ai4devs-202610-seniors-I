@@ -36,7 +36,9 @@ test.group('Tasks | responsable', (group) => {
   }
 
   function enLaLista(body: any, id: number) {
-    return body.data.find((tarea: { id: number }) => tarea.id === id)
+    const tarea = body.data.find((t: { id: number }) => t.id === id)
+    if (!tarea) throw new Error(`la tarea ${id} no aparece en la lista`)
+    return tarea
   }
 
   test('el responsable llega con su nombre y sus iniciales', async ({ client, assert }) => {
@@ -92,15 +94,17 @@ test.group('Tasks | responsable', (group) => {
     const permitidas = ['id', 'fullName', 'initials']
 
     for (const [lectura, assignee] of Object.entries(lecturas)) {
+      // Primero las claves de más, para que un fallo enseñe TODO lo que sobra
+      // (email incluido) y no solo la primera clave que encuentre.
+      const deMas = Object.keys(assignee).filter((clave) => !permitidas.includes(clave))
+      assert.deepEqual(deMas, [], `la ${lectura} expone datos de cuenta de más`)
+
       assert.notProperty(assignee, 'email', `la ${lectura} expone el email del responsable`)
       assert.notInclude(
         JSON.stringify(assignee),
         'ada@example.com',
         `la ${lectura} filtra el email en algún campo`
       )
-
-      const deMas = Object.keys(assignee).filter((clave) => !permitidas.includes(clave))
-      assert.deepEqual(deMas, [], `la ${lectura} expone datos de cuenta de más`)
     }
   })
 

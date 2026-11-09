@@ -37,8 +37,8 @@ con una sesión distinta de la del responsable.
 la **lista** devuelve el `assignee` con `email`, `createdAt` y `updatedAt`.
 `TaskDetailTransformer` usa `TaskAssigneeTransformer` (`id`, `fullName`, `initials`), mientras que
 `TaskTransformer`, el de la lista, sigue usando `UserTransformer`, que incluye el email. Fallo
-literal: `la lista expone el email del responsable: expected { id: 10, …(5) } to not have nested
-property 'email'`.
+literal: `la lista expone datos de cuenta de más: expected [ 'email', 'createdAt', 'updatedAt' ]
+to deeply equal []`.
 
 Fuera del alcance de los tests, pero visto al leer el código: `POST /tasks` y
 `PATCH /tasks/:id/status` también responden con `TaskTransformer`, así que también exponen el email.
@@ -51,7 +51,8 @@ Fuera del alcance de los tests, pero visto al leer el código: `POST /tasks` y
 2. **Hueco de test o hueco de spec: «La tarea no filtra datos de cuenta», por el `id`.** El
    requisito dice que no se expone «ningún otro dato de esa cuenta» aparte de nombre e iniciales,
    el scenario solo prohíbe el email y los «datos de acceso», y el `TaskAssigneeTransformer` manda
-   el `id` a propósito: si el `id` incumple la regla, lo que falla es la spec (o el código); si no
+   el `id` a propósito (su docstring lo justifica como «tal y como lo necesita la lista», o sea,
+   el código lo da por permitido): si el `id` incumple la regla, lo que falla es la spec (o el código); si no
    la incumple, esa excepción no está escrita en ningún sitio y la estaba poniendo yo.
 
 3. **Lo que decidí yo al escribir los tests:** dejé pasar el `id` en el `assignee` (lista
